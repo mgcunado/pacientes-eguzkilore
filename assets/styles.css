@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark &));
+
+.fresh-gradient {
+  background-color: rgb(134, 239, 172);
+  background-image: linear-gradient(
+    to right bottom,
+    rgb(219, 234, 254),
+    rgb(187, 247, 208),
+    rgb(254, 249, 195)
+    );
+}
+
+/* solo Chrome/Edge */
+/* Dentro de la función filter() puedes encadenar varios efectos; los más útiles para recolorear iconos son: */
+/* hue-rotate(deg) – gira el matiz (rojo → verde → azul …). */
+/* saturate(n) – sube/baja intensidad (1 = normal). */
+/* sepia(0-1) – tono marrón-dorado. */
+/* grayscale(0-1) – escala de grises. */
+/* invert(0-1) – negativo de la imagen. */
+/* brightness(n) – claro/oscuro (1 = normal). */
+/* contrast(n) – más/menos contraste. */
+/* drop-shadow(...) – sombra (no cambia color, pero da efecto). */
+/* Combinando solo estos puedes obtener cualquier color sin tocar la imagen original. */
+/* invert(0.5) → invierte los canales 50 %. */
+/* sepia(1) → convierte la imagen a sepia (marrones). */
+/* saturate(5) → sube la saturación 5× (más vivos). */
+/* hue-rotate(180deg) → gira el matiz 180° (cambia los marrón-anaranjados a azules). */
+/* Puedes variar el último valor (hue-rotate) para obtener otro color: */
+/* 0deg   → sepia original (ámbar) */
+/* 120deg → verde */
+/* 180deg → azul */
+/* 240deg → azul oscuro */
+/* 300deg → violeta */
+input[type="date"]::-webkit-calendar-picker-indicator, input[type="month"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(165deg);
+  cursor: pointer;
+  transform: scale(1.4);
+}
+
+input[type="month"]:in-range::-webkit-datetime-edit-year-field,
+input[type="month"]:in-range::-webkit-datetime-edit-month-field,
+input[type="month"]::-webkit-datetime-edit-text {
+  color: transparent; /* esconde ---- de ---- */
+}

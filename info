@@ -1,0 +1,44 @@
+::: info :::
+
+:: base de datos pacientes ::
+
+: table patients :
+id -> creado con ulid()
+name -> obligatorio
+first_surname -> obligatorio
+second_surname -> nullable, default value: null
+dni -> obligatorio
+city -> obligatorio
+phone -> obligatorio
+email -> nullable, default value: null
+start_date -> obligatorio, default value: 2025-01-01 (yyyy-mm-dd)
+discharge_date
+frequency -> se relaciona con la tabla frequencies en una relación de: muchas frecuencias - un paciente
+payment_method -> obligatorio
+request_invoice -> obligatorio , boolean , default value: no
+
+: table frequencies :
+id -> creado con ulid()
+patient_id -> el id de un paciente de la table patients
+start_date -> obligatorio,
+end_date -> nullable, default value: null
+
+CREATE TABLE transfers (
+  id VARCHAR(26) PRIMARY KEY,
+  patient_id VARCHAR(26) NOT NULL,
+  transfer_date DATE NOT NULL,
+  amount INT(3) UNSIGNED NOT NULL,
+  CONSTRAINT fk_transfer_patient
+    FOREIGN KEY (patient_id) REFERENCES patients(id)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE transfer_consultations (
+  id VARCHAR(26) PRIMARY KEY,
+  transfer_id VARCHAR(26) NOT NULL,
+  consultation_date DATE NOT NULL,
+  CONSTRAINT fk_tc_transfer FOREIGN KEY (transfer_id)
+    REFERENCES transfers(id) ON DELETE CASCADE,
+  UNIQUE (transfer_id, consultation_date)
+);
+//////////////////////////////////////////

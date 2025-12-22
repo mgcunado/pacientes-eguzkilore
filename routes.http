@@ -1,0 +1,107 @@
+##########################################
+### api routes on pacientes eguzkilore ###
+##########################################
+
+# GET http://localhost:5173/api/movies
+# Accept: application/json
+
+# PUT http://localhost:5173/api/movies/01K2NAKCMFMYT0D7BNZ6JBXBSY
+# Content-Type: application/json
+#
+# {
+# "title": "Superman 2026",
+# "genre": "Action",
+# }
+
+# POST http://localhost:5173/api/movies
+# Content-Type: application/json
+#
+# {
+# "title": "Spiderman III",
+# "genre": "Action"
+# }
+
+##########################################
+
+GET http://localhost:5173/api/patients
+Accept: application/json
+# Content-Type: application/json
+
+##########################################
+
+GET http://localhost:5173/api/frequencies?patientId=01KCCZ664JXRPDHRHT59VB9EJF
+Accept: application/json
+
+##########################################
+
+POST http://localhost:5173/api/patients
+Content-Type: application/json
+
+{
+  "name": "Borrado",
+  "first_surname": "Jim",
+  "dni": "12345678A",
+  "city": "Bilbao",
+  "phone": "600163856",
+  "payment_method": "cash",
+  "second_surname": null,
+  "email": null,
+  "start_date": "2025-01-01",
+  "discharge_date": null,
+  "request_invoice": false,
+  "frequency": "monthly"
+}
+
+##########################################
+
+POST http://localhost:5173/api/frequencies
+Content-Type: application/json
+
+{
+  "patient_id": "01KCCZ664JXRPDHRHT59VB9EJF",
+  "frequency": "Semanal",
+  "start_date": "2026-04-01"
+}
+
+##########################################
+# no funciona debido a que no se pasan todos los campos obligatorios
+# Error: Column 'city' cannot be null
+
+PUT http://localhost:5173/api/patients/01KCCZ664JXRPDHRHT59VB9EJF
+Content-Type: application/json
+
+{
+  "name": "Ane María",
+  "firstSurname": "Rodriguez"
+}
+
+##########################################
+
+PUT http://localhost:5173/api/patients/01KCCZ664JXRPDHRHT59VB9EJF
+Content-Type: application/json
+
+{
+  "name": "Ane María",
+  "first_surname": "López",
+  "city": "Bilbao",
+  "dni": "12345678B",
+  "phone": "600123456",
+  "payment_method": "card",
+  "second_surname": "García",
+  "email": "ane@mail.com",
+  "start_date": "2025-01-01",
+  "discharge_date": null,
+  "request_invoice": true,
+  "frequency": "cada 3 semanas"
+}
+
+##########################################
+
+DELETE http://localhost:5173/api/patients/01KCD138TH4VRBAA6HDSWCSK1X
+Accept: application/json
+
+##########################################
+
+DELETE http://localhost:5173/api/frequencies/01KCD1H9B5PQR6BWV0S9B4C8H5
+Accept: application/json
+
