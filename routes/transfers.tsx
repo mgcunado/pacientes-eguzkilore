@@ -1,10 +1,11 @@
 import { Head } from "fresh/runtime";
 import { RouteContext, SITE_TITLE } from "@/utils.ts";
-import FrequencyList from "@/islands/FrequencyList.tsx";
-import type { Frequency } from "@/database.ts";
+import TransferList from "@/islands/TransferList.tsx";
+import type { Transfer } from "@/database.ts";
 
 interface Data {
-  frequencies: Frequency[];
+  patientId: string;
+  transfers: Transfer[];
   patientCompleteName: string;
 }
 
@@ -17,32 +18,34 @@ export async function handler(ctx: RouteContext) {
   const secondSurname = url.searchParams!.get("secondSurname") ?? "";
   const patientCompleteName = secondSurname === "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
 
-  // 2. pedir solo las frecuencias de ese paciente
+
+  // 2. pedir solo las transferencias de ese paciente
   const resp = await fetch(
-    `http://localhost:5173/api/frequencies?patientId=${patientId}`
+    `http://localhost:5173/api/transfers?patientId=${patientId}`
   );
 
   if (!resp.ok) {
-    return new Response("Error getting frequencies.", { status: 500 });
+    return new Response("Error getting transfers.", { status: 500 });
   }
 
-  const frequencies: Frequency[] = await resp.json();
+  const transfers: Transfer[] = await resp.json();
 
   // 3. renderizar con el patientId
-  return ctx.render(<Home frequencies={frequencies} patientCompleteName={patientCompleteName} />);
+  return ctx.render(<Home patientId={patientId} transfers={transfers} patientCompleteName={patientCompleteName} />);
 }
 
 export default function Home(props: Data) {
-  const { frequencies, patientCompleteName } = props;
+  const { patientId, transfers, patientCompleteName } = props;
   return (
     <>
       <Head>
         <title>{SITE_TITLE}</title>
-        <meta name="description" content="CRUD frequencies" />
+        <meta name="description" content="CRUD transfers" />
       </Head>
 
-      <FrequencyList 
-        initialFrequencies={frequencies}
+      <TransferList
+        patientId={patientId}
+        initialTransfers={transfers}
         patientCompleteName={patientCompleteName}
       />
     </>

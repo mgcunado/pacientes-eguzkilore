@@ -191,20 +191,6 @@ filterMonth === "Todos"
         >
           Todos
         </button>
-        {/*
-        <label class="text-slate-700 dark:text-white text-right text-xl">Ordenar por:</label>
-        <select
-          value={sortKey}
-          onChange={e => setSortKey(e.currentTarget.value as any)}
-          class={inputCls + " cursor-pointer border border-2 border-slate-800"}
-        >
-          <option value="name">Nombre</option>
-          <option value="first_surname">Primer apellido</option>
-          <option value="payment_method">Método de pago</option>
-          <option value="frequency">Frecuencia</option>
-        </select>
-        */}
-
         <label class="text-slate-700 dark:text-white text-right text-xl">Frecuencia:</label>
         <select
           value={filterFreq === "Todas" ? "" : filterFreq}
@@ -229,10 +215,8 @@ filterFreq === "Todas"
         >
           Todas
         </button>
-
       </div>
 
-      {/*<div class="grid grid-cols-5 gap-2 items-center">*/}
       <div class="flex items-center gap-4">
         {/* texto */}
         <span class="text-slate-700 dark:text-white text-right text-xl">
@@ -257,7 +241,6 @@ filterFreq === "Todas"
               </button>
 
               {/* icono dirección (clickeable) */}
-              {/*class="p-1 rounded hover:text-white dark:hover:text-white"*/}
               <button
                 type="button"
                 onClick={() =>
@@ -266,8 +249,6 @@ filterFreq === "Todas"
                     [key as typeof sortKey]: prev[key as typeof sortKey] === "asc" ? "desc" : "asc" }))
                 }
                 class={`-ml-2 px-3 py-3 rounded border transition-colors text-white ${ sortKey === key ? "cursor-pointer bg-blue-600 border-blue-600 hover:text-blue-50 dark:hover:text-slate-950" : "bg-white dark:bg-cyan-950 border-cyan-900" }`}
-
-                // title={sortDir[key as typeof sortKey] === "asc" ? "Orden ascendente" : "Orden descendente"}
               >
                 {sortDir[key as typeof sortKey] === "asc"
                   ? <AscIcon class="h-4 w-4" />
@@ -294,7 +275,6 @@ filterFreq === "Todas"
               class="mt-8 p-8 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 flex justify-between items-center"
             >
               <div class="w-[78%]">
-
                 <div class="flex justify-between items-center mt-0 mb-6">
                   <h2 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">
                     {
@@ -307,7 +287,6 @@ filterFreq === "Todas"
 
                   <div class="text-base text-gray-600 dark:text-slate-700 mr-10" >
                     <CuentaDniIcon class="h-7 w-7 text-slate-500 dark:text-slate-700 inline" /> { p.dni }
-                    {/*"DNI: " + p.dni*/}
                   </div>
                 </div>
 
@@ -316,13 +295,6 @@ filterFreq === "Todas"
                     <CalendarIcon class="h-5 w-5 text-green-500 dark:text-green-500 inline mr-1" /> { formatDateES(p.start_date) }
                   </div>
                   <div class="text-gray-600 dark:text-gray-400 text-left pr-4">
-                    {/* <ClockIcon class="h-5 w-5 text-blue-500 dark:text-blue-500 inline mr-1" /> {(p.frequencies.find((f: any) => f.end_date === null)?.frequency) || '---'} */}
-                    {/*<ClockIcon class="h-5 w-5 text-blue-500 dark:text-blue-500 inline mr-1" />
-                    {
-                      filterMonth === "Todos" ?
-                        (p.frequencies.find((f: any) => f.end_date === null)?.frequency) || '---' :
-                        (p as any)._displayFreq?.frequency ?? "-"
-                    }*/}
                     <ClockIcon class="h-5 w-5 text-blue-500 inline mr-1" />
                     {(p as Patient & { _displayFreq?: Frequency })._displayFreq?.frequency ?? "-"}
                   </div>
@@ -371,24 +343,53 @@ filterFreq === "Todas"
                   </div>
                 </div>
               </div>
-              <div class="w-[22%] grid grid-cols-2 gap-2">
-                <div class="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(p)}
-                    class="cursor-pointer w-4/5 mx-auto bg-slate-400 hover:bg-slate-500 dark:bg-slate-500 dark:hover:bg-slate-600 text-white font-bold py-1 px-2 rounded text-sm"
-                  >
-                    Editar
-                  </button>
+              <div class="w-[22%]">
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(p)}
+                      class="cursor-pointer w-4/5 mx-auto bg-slate-400 hover:bg-slate-500 dark:bg-slate-500 dark:hover:bg-slate-600 text-white font-bold py-1 px-2 rounded text-sm"
+                    >
+                      Editar
+                    </button>
+                  </div>
+                  <div class="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(p.id)}
+                      class="cursor-pointer w-4/5 mx-auto bg-pink-400 hover:bg-pink-500 dark:bg-pink-500 dark:hover:bg-pink-600 text-white font-bold py-1 px-2 rounded text-sm"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
-                <div class="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(p.id)}
-                    class="cursor-pointer w-4/5 mx-auto bg-pink-400 hover:bg-pink-500 dark:bg-pink-500 dark:hover:bg-pink-600 text-white font-bold py-1 px-2 rounded text-sm"
-                  >
-                    Eliminar
-                  </button>
+
+                <div class="w-full">
+                  {(
+                    <button
+                      type="button"
+                      onClick={() => {
+                        location.href = `/frequencies?patientId=${p!.id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
+                      }}
+                      class="w-full cursor-pointer bg-teal-700 hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
+                    >
+                      Nueva Frecuencia
+                    </button>
+                  )}
+                </div>
+                <div class="w-full">
+                  {p.payment_method !== "Efectivo" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        location.href = `/transfers?patientId=${p!.id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
+                      }}
+                      class="w-full cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
+                    >
+                      Nueva Transferencia
+                    </button>
+                  )}
                 </div>
               </div>
             </li>

@@ -28,6 +28,10 @@ export default function PatientForm(
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  const patientCompleteName = patientToEdit
+  ? `${name} ${first_surname}${second_surname ? ` ${second_surname}` : ''}`.trim()
+  : '';
+
   /* ----- carga de datos en edición ----- */
   useEffect(() => {
     if (patientToEdit) {
@@ -365,17 +369,6 @@ export default function PatientForm(
               class="cursor-pointer bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             >
               Cancelar
-            </button>
-          )}
-          {patientToEdit && (
-            <button
-              type="button"
-              onClick={() => {
-                location.href = `/frequencies?patientId=${patientToEdit!.id}&name=${patientToEdit!.name}&firstSurname=${patientToEdit!.first_surname}&secondSurname=${patientToEdit!.second_surname}`;
-              }}
-              class="cursor-pointer bg-teal-700 hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-900 text-white font-bold py-2 px-18 ml-24 rounded"
-            >
-              Añadir Nueva Frecuencia
             </button>
           )}
         </div>

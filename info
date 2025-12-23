@@ -33,7 +33,7 @@ CREATE TABLE transfers (
     ON DELETE CASCADE
 );
 
-CREATE TABLE transfer_consultations (
+CREATE TABLE consultations (
   id VARCHAR(26) PRIMARY KEY,
   transfer_id VARCHAR(26) NOT NULL,
   consultation_date DATE NOT NULL,

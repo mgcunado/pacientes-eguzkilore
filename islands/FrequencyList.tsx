@@ -164,7 +164,7 @@ export default function FrequencyList({ initialFrequencies, patientCompleteName 
         </ul>
       ) : (
           <p class="text-red-600 dark:text-white text-center py-8 text-3xl font-semibold bg-slate-500 border-2 border-slate-900 rounded-2xl mt-2">
-            No se han encontrado frecuancias!
+            No se han encontrado frecuencias!
           </p>
         )}
     </div>

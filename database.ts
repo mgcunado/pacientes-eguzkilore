@@ -91,13 +91,13 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 export async function updatePatient( id: string, p: Partial<Patient>
 ): Promise<{ affectedRows: number; msg?: string }> {
   // const counter = await client.execute(
-  //   "SELECT count(dni) FROM patients WHERE dni = ?",
-  //   [p.dni]
+  // "SELECT count(dni) FROM patients WHERE dni = ?",
+  // [p.dni]
   // );
   // onst count = Number((res.rows?.[0] as any)?.c ?? 0);
   // const count = Number(res.rows?.[0]?.c ?? 0);
   // if (counter === 2) {
-  //   return { affectedRows: 2, msg: "El DNI ya está registrado en otro paciente!" };
+  // return { affectedRows: 2, msg: "El DNI ya está registrado en otro paciente!" };
   // }
 
   const resDni = await client.execute(
@@ -142,16 +142,6 @@ WHERE id = ?`,
   return { affectedRows: res.affectedRows! };
 }
 
-// export async function deletePatient(
-// id: string
-// ): Promise<{ affectedRows: number }> {
-// const res = await client.execute(
-// "DELETE FROM patients WHERE id = ?",
-// [id]
-// );
-// return { affectedRows: res.affectedRows! };
-// }
-
 export async function deletePatient(id: string): Promise<{ affectedRows: number }> {
   // 1. elimina las frecuencias del paciente
   await client.execute(
@@ -184,7 +174,6 @@ export async function readFrequencies(patientId: string): Promise<Frequency[]> {
   );
   return res.rows as Frequency[];
 }
-
 
 export async function readActiveFrequency(patientId: string): Promise<Frequency[]> {
   const res = await client.execute(
@@ -270,12 +259,105 @@ LIMIT 1`,
   return { affectedRows: 1 };
 }
 
-// export async function deleteFrequency(
-// id: string
-// ): Promise<{ affectedRows: number }> {
-// const res = await client.execute(
-// "DELETE FROM frequencies WHERE id = ?",
-// [id]
-// );
-// return { affectedRows: res.affectedRows! };
-// }
+// ---------- TRANSFER ----------
+export interface Transfer {
+  id: string;
+  patient_id: string;
+  transfer_date: string;
+  amount: number;
+}
+
+export async function readTransfers(patientId: string): Promise<Transfer[]> {
+  const res = await client.execute(
+    "SELECT * FROM transfers WHERE patient_id = ? ORDER BY id",
+    [patientId]
+  );
+  return res.rows as Transfer[];
+}
+
+export async function addTransfer(f: Transfer): Promise<{ inserted: boolean; msg?: string }> {
+  await client.execute(
+    "INSERT INTO transfers(id, patient_id, transfer_date, amount) VALUES (?, ?, ?, ?)",
+    [f.id, f.patient_id, f.transfer_date, f.amount]
+  );
+
+  return { inserted: true };
+}
+
+export async function updateTransfer(
+  id: string,
+  f: Partial<Transfer>
+): Promise<{ affectedRows: number }> {
+  const res = await client.execute(
+    "UPDATE transfers SET transfer_date = ?, amount = ? WHERE id = ?",
+    [f.transfer_date, f.amount, id]
+  );
+  return { affectedRows: res.affectedRows! };
+}
+
+export async function deleteTransfer(id: string): Promise<{ affectedRows: number; msg?: string }> {
+  // 1. paciente de la fila que van a borrar
+  const row = await client.execute(
+    "SELECT patient_id FROM transfers WHERE id = ?",
+    [id]
+  );
+  const patientId = row.rows?.[0]?.patient_id;
+  if (!patientId) return { affectedRows: 0 };
+
+
+  // 2. borrar transferencia
+  await client.execute("DELETE FROM transfers WHERE id = ?", [id]);
+
+  return { affectedRows: 1 };
+}
+
+// ---------- CONSULTATION ----------
+export interface Consultation {
+  id: string;
+  transfer_id: string;
+  consultation_date: string;
+}
+
+export async function readConsultations(patientId: string): Promise<Consultation[]> {
+  const res = await client.execute(
+    "SELECT * FROM consultations WHERE transfer_id = ? ORDER BY id",
+    [patientId]
+  );
+  return res.rows as Consultation[];
+}
+
+export async function addConsultation(f: Consultation): Promise<{ inserted: boolean; msg?: string }> {
+  await client.execute(
+    "INSERT INTO consultations(id, transfer_id, consultation_date) VALUES (?, ?, ?)",
+    [f.id, f.transfer_id, f.consultation_date]
+  );
+
+  return { inserted: true };
+}
+
+export async function updateConsultation(
+  id: string,
+  f: Partial<Consultation>
+): Promise<{ affectedRows: number }> {
+  const res = await client.execute(
+    "UPDATE consultations SET consultation_date = ? WHERE id = ?",
+    [f.consultation_date, id]
+  );
+  return { affectedRows: res.affectedRows! };
+}
+
+export async function deleteConsultation(id: string): Promise<{ affectedRows: number; msg?: string }> {
+  // 1. transferencia de la fila que van a borrar
+  const row = await client.execute(
+    "SELECT transfer_id FROM consultations WHERE id = ?",
+    [id]
+  );
+  const transferId = row.rows?.[0]?.transfer_id;
+  if (!transferId) return { affectedRows: 0 };
+
+
+  // 2. borrar consulta
+  await client.execute("DELETE FROM consultations WHERE id = ?", [id]);
+
+  return { affectedRows: 1 };
+}
