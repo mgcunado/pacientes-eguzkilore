@@ -158,7 +158,7 @@ export default function PatientList({ initialPatients }: Props) {
   /* | render | */
   /* ---------------------- */
   return (
-    <div class="p-5 mx-auto w-[80%] mb-5">
+    <div class="p-5 mx-auto w-[94%] mb-5">
       <div id="patient-form" class="scroll-mt-20">
         <PatientForm
           patientToEdit={editingPatient}

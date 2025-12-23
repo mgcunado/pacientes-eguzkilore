@@ -187,7 +187,7 @@ export default function PatientForm(
       >
         <div class="flex items-center justify-between mt-0 mb-6">
           <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {patientToEdit ? "Edit Patient" : "Añadir Paciente"}
+            {patientToEdit ? "Editar Paciente" : "Añadir Paciente"}
           </h2>
 
           {/* info campos obligatorios */ }

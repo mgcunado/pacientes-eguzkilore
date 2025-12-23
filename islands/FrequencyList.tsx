@@ -105,7 +105,7 @@ export default function FrequencyList({ initialFrequencies, patientCompleteName 
         </h1>
 
         <a
-          href="./patients"
+          href="./patients#patient-list"
           class="text-base text-slate-600 hover:text-slate-600 dark:text-slate-800 dark:hover:text-slate-900 underline text-xl font-bold"
         >
           Regresar al Listado de Pacientes
