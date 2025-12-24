@@ -236,7 +236,7 @@ filterFreq === "Todas"
         </button>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
         {/* texto */}
         <span class="text-slate-700 dark:text-white text-right text-xl">
           Ordenar por:
@@ -254,7 +254,7 @@ filterFreq === "Todas"
               <button
                 type="button"
                 onClick={() => setSortKey(key as "name" | "first_surname" | "payment_method" | "frequency")}
-                class={`px-3 py-2 rounded border transition-colors ${ sortKey === key ? "bg-blue-600 text-white border-blue-600" : "cursor-pointer bg-white dark:bg-cyan-950 text-white border-cyan-900 hover:bg-blue-50 dark:hover:bg-purple-900" }`}
+                class={`px-2 py-2 rounded border transition-colors ${ sortKey === key ? "bg-blue-600 text-white border-blue-600" : "cursor-pointer bg-white dark:bg-cyan-950 text-white border-cyan-900 hover:bg-blue-50 dark:hover:bg-purple-900" }`}
               >
                 {label}
               </button>
@@ -267,7 +267,7 @@ filterFreq === "Todas"
                     ...prev,
                     [key as typeof sortKey]: prev[key as typeof sortKey] === "asc" ? "desc" : "asc" }))
                 }
-                class={`-ml-2 px-3 py-3 rounded border transition-colors text-white ${ sortKey === key ? "cursor-pointer bg-blue-600 border-blue-600 hover:text-blue-50 dark:hover:text-slate-950" : "bg-white dark:bg-cyan-950 border-cyan-900" }`}
+                class={`-ml-2 px-2 py-3 rounded border transition-colors text-white ${ sortKey === key ? "cursor-pointer bg-blue-600 border-blue-600 hover:text-blue-50 dark:hover:text-slate-950" : "bg-white dark:bg-cyan-950 border-cyan-900" }`}
               >
                 {sortDir[key as typeof sortKey] === "asc"
                   ? <AscIcon class="h-4 w-4" />
@@ -283,7 +283,7 @@ filterFreq === "Todas"
           value={search}
           onInput={e => setSearch(e.currentTarget.value)}
           placeholder="Buscar por nombre o apellidos..."
-          class={inputClsNotWidthFull + " border border-2 border-slate-800 w-80 ml-25"}
+          class={inputClsNotWidthFull + " border border-2 border-slate-800 w-75 ml-5"}
         />
       </div>
       {/* -- end filters -- */}
