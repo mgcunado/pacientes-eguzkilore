@@ -164,7 +164,7 @@ export default function TransferList({ patientId, initialTransfers, patientCompl
                       }}
                       class="w-full cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-4 mx-0 mt-5 rounded"
                     >
-                      Vincular Nueva Consulta
+                      Vincular Consulta{p!.amount === 50 ? "" : "s"}
                     </button>
                   )}
                 </div>

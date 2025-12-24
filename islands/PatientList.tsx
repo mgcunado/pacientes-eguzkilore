@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "preact/hooks";
 import { Patient, Frequency } from "../database.ts";
 import PatientForm from "./PatientForm.tsx";
 import { MapPinIcon, PhoneIcon, EnvelopeIcon, CalendarIcon, CreditCardIcon, CoinsStackIcon, ReceiptIcon, ClockIcon, CheckCalendarIcon, CuentaDniIcon, AscIcon, DescIcon } from "@/utils/iconsSvg.tsx";
-import { inputCls } from "../utils/constants.ts";
+import { inputCls, inputClsNotWidthFull } from "../utils/constants.ts";
 
 interface Props {
   initialPatients: Patient[];
@@ -122,11 +122,13 @@ export default function PatientList({ initialPatients }: Props) {
   }, [patients, sortKey, sortDir]);
 
   /* ---- filtro cruzado (mes + frecuencia) ---- */
-  const filteredPatients = useMemo(() => {
+  const [search, setSearch] = useState("");
 
+  const filteredPatients = useMemo(() => {
     const [y, m] = filterMonth === "Todos" ? [0, 0] : filterMonth.split("-").map(Number);
     const monthStart = new Date(y, m - 1, 1);
     const monthEnd = filterMonth === "Todos" ? new Date() : new Date(y, m, 0, 23, 59, 59);
+    const lower = search.trim().toLowerCase(); // ← buscador
 
     return sortedPatients.filter(p => {
       // 1. mes (solo si se ha elegido uno)
@@ -136,14 +138,20 @@ export default function PatientList({ initialPatients }: Props) {
         if (patStart > monthEnd || patEnd < monthStart) return false;
       }
 
-      // 2. frecuencia vigente (siempre)
+      // 2. búsqueda por nombre/apellidos (si hay texto)
+      if (lower) {
+        const fullName = `${p.name} ${p.first_surname} ${p.second_surname ?? ""}`.toLowerCase();
+        if (!fullName.includes(lower)) return false;
+      }
+
+      // 3. frecuencia vigente (siempre)
       const candidates = p.frequencies
       .filter(f => new Date(f.start_date) <= monthEnd)
       .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime());
 
       const displayFreq = (candidates.find(f => !f.end_date) ?? candidates.at(0)) as Frequency | undefined;
 
-      // 3. filtro de frecuencia (solo si se ha elegido una)
+      // 4. filtro de frecuencia (solo si se ha elegido una)
       if (filterFreq !== "Todas") {
         if (!displayFreq || displayFreq.frequency !== filterFreq) return false;
       }
@@ -152,7 +160,7 @@ export default function PatientList({ initialPatients }: Props) {
       (p as Patient & { _displayFreq?: Frequency })._displayFreq = displayFreq;
       return true;
     });
-  }, [sortedPatients, filterMonth, filterFreq]);
+  }, [sortedPatients, filterMonth, filterFreq, search]); // ← añadido search
 
   /* ---------------------- */
   /* | render | */
@@ -167,7 +175,18 @@ export default function PatientList({ initialPatients }: Props) {
         />
       </div>
 
-      <h1 id="patient-list" class="text-3xl font-bold mt-12 text-gray-900 dark:text-gray-100">Listado de pacientes</h1>
+      <div class="flex items-center justify-between mt-12">
+        <h1 id="patient-list" class="text-3xl font-bold mt-12 text-gray-900 dark:text-gray-100">
+          Listado de pacientes
+        </h1>
+
+        <a
+          href="./transfersAndConsultations"
+          class="text-base text-slate-600 hover:text-slate-600 dark:text-slate-800 dark:hover:text-slate-900 underline text-xl font-bold mt-12"
+        >
+         Listado de Transferencias
+        </a>
+      </div>
 
       {/* -- filters -- */}
 
@@ -257,6 +276,15 @@ filterFreq === "Todas"
               </button>
             </div>
           ))}
+
+        {/* buscador */}
+        <input
+          type="text"
+          value={search}
+          onInput={e => setSearch(e.currentTarget.value)}
+          placeholder="Buscar por nombre o apellidos..."
+          class={inputClsNotWidthFull + " border border-2 border-slate-800 w-80 ml-25"}
+        />
       </div>
       {/* -- end filters -- */}
 
@@ -365,29 +393,29 @@ filterFreq === "Todas"
                   </div>
                 </div>
 
-                <div class="w-full">
+                <div class="flex justify-center">
                   {(
                     <button
                       type="button"
                       onClick={() => {
                         location.href = `/frequencies?patientId=${p!.id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
                       }}
-                      class="w-full cursor-pointer bg-teal-700 hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
+                      class="w-[89%] cursor-pointer bg-teal-700 hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
                     >
-                      Nueva Frecuencia
+                      Frecuencias
                     </button>
                   )}
                 </div>
-                <div class="w-full">
+                <div class="flex justify-center">
                   {p.payment_method !== "Efectivo" && (
                     <button
                       type="button"
                       onClick={() => {
                         location.href = `/transfers?patientId=${p!.id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
                       }}
-                      class="w-full cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
+                      class="w-[89%] cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-3 mt-5 mx-0 rounded"
                     >
-                      Nueva Transferencia
+                      Transferencias
                     </button>
                   )}
                 </div>

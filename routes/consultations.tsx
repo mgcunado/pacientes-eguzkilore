@@ -17,12 +17,16 @@ export async function handler(ctx: RouteContext) {
   const url = new URL(ctx.req.url);
   const transferId = url.searchParams.get("transferId") ?? "";
   const transferDate = url.searchParams.get("transferDate") ?? "";
-  // const name = url.searchParams!.get("name") ?? "";
-  // const firstSurname = url.searchParams!.get("firstSurname") ?? "";
-  // const secondSurname = url.searchParams!.get("secondSurname") ?? "";
+  const name = url.searchParams!.get("name") ?? "";
+  const firstSurname = url.searchParams!.get("firstSurname") ?? "";
+  const secondSurname = url.searchParams!.get("secondSurname") ?? "";
   // const patientCompleteName = secondSurname === "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
   const patientId = url.searchParams!.get("patientId") ?? "";
-  const patientCompleteName = url.searchParams!.get("patientCompleteName") ?? "";
+  // const patientCompleteName = url.searchParams!.get("patientCompleteName") ?? "";
+  const patientCompleteName = url.searchParams!.get("patientCompleteName") ?
+    url.searchParams!.get("patientCompleteName") ?? "" : 
+    secondSurname !== "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
+
   const amount = url.searchParams!.get("amount") ?? "";
 
   // 2. pedir solo las consultationencias de ese paciente

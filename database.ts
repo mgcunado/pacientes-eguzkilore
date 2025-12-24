@@ -265,6 +265,53 @@ export interface Transfer {
   patient_id: string;
   transfer_date: string;
   amount: number;
+  name: string;
+  first_surname: string;
+  second_surname?: string | null;
+  consultations: Array<{
+    consultation_date: string;
+  }>;
+}
+
+export async function readAllTransfers(): Promise<Transfer[]> {
+  // const res = await client.execute(
+  //   "SELECT * FROM transfers ORDER BY id"
+  // );
+  // return res.rows as Transfer[];
+  // SELECT t.*,
+  // JSON_ARRAYAGG(
+  // JSON_OBJECT(
+  // 'consultation_date', c.consultation_date
+  // )
+  // ORDER BY c.consultation_date
+  // ) AS consultations
+  // FROM transfers t
+  // JOIN consultations c ON c.transfer_id = t.id
+  // GROUP BY t.id
+  // ORDER BY t.transfer_date DESC, t.id DESC;
+
+  const sql = `
+SELECT t.*,
+MAX(p.name) AS name,
+MAX(p.first_surname) AS first_surname,
+MAX(p.second_surname) AS second_surname,
+JSON_ARRAYAGG(
+JSON_OBJECT('consultation_date', c.consultation_date)
+ORDER BY c.consultation_date
+) AS consultations
+FROM transfers AS t
+JOIN consultations AS c ON c.transfer_id = t.id
+JOIN patients AS p ON p.id = t.patient_id
+GROUP BY t.id
+ORDER BY t.transfer_date DESC, t.id DESC;
+`;
+
+  const res = await client.execute(sql);
+
+  return res.rows?.map((r: any) => ({
+    ...r,
+    consultations: JSON.parse(r.consultations),
+  })) as Transfer[];
 }
 
 export async function readTransfers(patientId: string): Promise<Transfer[]> {
@@ -303,7 +350,6 @@ export async function deleteTransfer(id: string): Promise<{ affectedRows: number
   );
   const patientId = row.rows?.[0]?.patient_id;
   if (!patientId) return { affectedRows: 0 };
-
 
   // 2. borrar transferencia
   await client.execute("DELETE FROM transfers WHERE id = ?", [id]);
@@ -354,7 +400,6 @@ export async function deleteConsultation(id: string): Promise<{ affectedRows: nu
   );
   const transferId = row.rows?.[0]?.transfer_id;
   if (!transferId) return { affectedRows: 0 };
-
 
   // 2. borrar consulta
   await client.execute("DELETE FROM consultations WHERE id = ?", [id]);
