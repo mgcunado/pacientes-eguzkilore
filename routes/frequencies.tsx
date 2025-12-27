@@ -15,7 +15,10 @@ export async function handler(ctx: RouteContext) {
   const name = url.searchParams!.get("name") ?? "";
   const firstSurname = url.searchParams!.get("firstSurname") ?? "";
   const secondSurname = url.searchParams!.get("secondSurname") ?? "";
-  const patientCompleteName = secondSurname === "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
+  const patientCompleteName =
+  secondSurname && secondSurname !== "null"
+    ? `${name} ${firstSurname} ${secondSurname}`
+    : `${name} ${firstSurname}`;
 
   // 2. pedir solo las frecuencias de ese paciente
   const resp = await fetch(

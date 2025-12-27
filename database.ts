@@ -290,17 +290,36 @@ export async function readAllTransfers(): Promise<Transfer[]> {
   // GROUP BY t.id
   // ORDER BY t.transfer_date DESC, t.id DESC;
 
+//   const sql = `
+// SELECT t.*,
+// MAX(p.name) AS name,
+// MAX(p.first_surname) AS first_surname,
+// MAX(p.second_surname) AS second_surname,
+// JSON_ARRAYAGG(
+// JSON_OBJECT('consultation_date', c.consultation_date)
+// ORDER BY c.consultation_date
+// ) AS consultations
+// FROM transfers AS t
+// JOIN consultations AS c ON c.transfer_id = t.id
+// JOIN patients AS p ON p.id = t.patient_id
+// GROUP BY t.id
+// ORDER BY t.transfer_date DESC, t.id DESC;
+// `;
+
   const sql = `
 SELECT t.*,
-MAX(p.name) AS name,
-MAX(p.first_surname) AS first_surname,
-MAX(p.second_surname) AS second_surname,
-JSON_ARRAYAGG(
-JSON_OBJECT('consultation_date', c.consultation_date)
-ORDER BY c.consultation_date
-) AS consultations
+       MAX(p.name) AS name,
+       MAX(p.first_surname) AS first_surname,
+       MAX(p.second_surname) AS second_surname,
+       COALESCE(
+         JSON_ARRAYAGG(
+           JSON_OBJECT('consultation_date', c.consultation_date)
+           ORDER BY c.consultation_date
+         ),
+         JSON_ARRAY()
+       ) AS consultations
 FROM transfers AS t
-JOIN consultations AS c ON c.transfer_id = t.id
+LEFT JOIN consultations AS c ON c.transfer_id = t.id
 JOIN patients AS p ON p.id = t.patient_id
 GROUP BY t.id
 ORDER BY t.transfer_date DESC, t.id DESC;

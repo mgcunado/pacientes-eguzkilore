@@ -283,7 +283,7 @@ filterFreq === "Todas"
           value={search}
           onInput={e => setSearch(e.currentTarget.value)}
           placeholder="Buscar por nombre o apellidos..."
-          class={inputClsNotWidthFull + " border border-2 border-slate-800 w-75 ml-5"}
+          class={inputClsNotWidthFull + " border border-2 border-slate-800 w-80 ml-8"}
         />
       </div>
       {/* -- end filters -- */}

@@ -16,10 +16,9 @@ export async function handler(ctx: RouteContext) {
   const name = url.searchParams!.get("name") ?? "";
   const firstSurname = url.searchParams!.get("firstSurname") ?? "";
   const secondSurname = url.searchParams!.get("secondSurname") ?? "";
-  // const patientCompleteName = secondSurname !== "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
   const patientCompleteName = url.searchParams!.get("patientCompleteName") ?
     url.searchParams!.get("patientCompleteName") ?? "" : 
-    secondSurname !== "" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
+    secondSurname && secondSurname !== "null" ? `${name} ${firstSurname} ${secondSurname}` : `${name} ${firstSurname}`;
 
 
 

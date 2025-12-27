@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "preact/hooks";
+import { useState, useMemo } from "preact/hooks";
 import { Transfer } from "../database.ts";
 import { CalendarIcon, CoinsStackIcon } from "@/utils/iconsSvg.tsx";
 import { inputCls } from "../utils/constants.ts";
@@ -9,61 +9,8 @@ interface Props {
 
 export default function TransferList({ initialTransfers, }: Props) {
   const [transfers, setTransfers] = useState(initialTransfers);
-  // const [editingTransfer, setEditingTransfer] = useState<Transfer | null>(null);
-
-  // const handleDelete = async (id: string) => {
-  // if (!confirm("¿Está seguro de que desea eliminar esta transferencia?")) return;
-  //
-  // const response = await fetch(`/api/transfers/${id}`, { method: "DELETE" });
-  // if (!response.ok) {
-  // alert("Error borrando la transferencia!");
-  // return;
-  // }
-
-  // localStorage.setItem("transferdeleted", JSON.stringify({ value: "ok", expiry: Date.now() + 6_000 }));
-  // refreshAndBanner(); // recarga lista y fuerza banner
-  // };
-
-  // const handleEdit = (transfer: Transfer) => {
-  // setEditingTransfer(transfer);
-  // location.hash = "";
-  // setTimeout(() => (location.hash = "transfer-form"), 0);
-  // };
-
-  /* ------- banner ------- */
-  // type BannerKind = "new" | "updated" | "deleted" | null;
-  // const [banner, setBanner] = useState<BannerKind>(null);
-  // const [tick, setTick] = useState(0);
-
-  // useEffect(() => {
-  // const check = (key: "newtransfer" | "transferupdated" | "transferdeleted"): BannerKind => {
-  // const raw = localStorage.getItem(key);
-  // if (!raw) return null;
-  // try {
-  // const { expiry } = JSON.parse(raw);
-  // const remain = expiry - Date.now();
-  // if (remain <= 0) { localStorage.removeItem(key); return null; }
-  // return key === "newtransfer" ? "new" : key === "transferupdated" ? "updated" : "deleted";
-  // } catch { localStorage.removeItem(key); return null; }
-  // };
-  //
-  // const newB = check("newtransfer");
-  // const updB = check("transferupdated");
-  // const delB = check("transferdeleted");
-  // const kind = newB || updB || delB;
-  // if (!kind) { setBanner(null); return; }
-  //
-  // setBanner(kind);
-  // const remain = JSON.parse(localStorage.getItem(kind === "new" ? "newtransfer" : kind === "updated" ? "transferupdated" : "transferdeleted")!).expiry - Date.now();
-  // const t = setTimeout(() => {
-  // localStorage.removeItem(kind === "new" ? "newtransfer" : kind === "updated" ? "transferupdated" : "transferdeleted");
-  // setBanner(null);
-  // }, remain);
-  // return () => clearTimeout(t);
-  // }, [tick]);
 
   const refreshTransfers = async () => {
-    // const res = await fetch(`/api/transfers?patientId=${transfers[0].patient_id}`);
     const res = await fetch(`/api/transfers`);
     if (res.ok) setTransfers(await res.json());
   };
@@ -83,27 +30,24 @@ export default function TransferList({ initialTransfers, }: Props) {
   /* ------- filters ------- */
   const [filterMonth, setFilterMonth] = useState("Todos"); // valor por defecto
 
-  const filteredTransfers = useMemo(() => {
-    if (filterMonth === "Todos") return transfers;
+const filteredTransfers = useMemo(() => {
+  if (filterMonth === "Todos") return transfers;
 
-    const [y, m] = filterMonth.split("-").map(Number);
-    const monthStart = new Date(y, m - 1, 1);
-    const monthEnd = new Date(y, m, 0, 23, 59, 59);
+  const [y, m] = filterMonth.split("-").map(Number);
+  const monthStart = new Date(y, m - 1, 1);
+  const monthEnd = new Date(y, m, 0, 23, 59, 59);
 
-    return transfers.filter(t => {
-      // transferencias que tengan AL MENOS 1 consulta EN el mes
-      const hasConsultationInMonth = t.consultations.some(
-        d => new Date(d.consultation_date) >= monthStart && new Date(d.consultation_date) <= monthEnd
-      );
-      return hasConsultationInMonth;
-    }).map(t => ({
-        ...t,
-        // solo las consultas del mes elegido
-        consultations: t.consultations.filter(
-          d => new Date(d.consultation_date) >= monthStart && new Date(d.consultation_date) <= monthEnd
-        )
-      }));
-  }, [transfers, filterMonth]);
+  return transfers.filter(t => {
+    // solo transferencias que tengan ≥1 consulta REAL en el mes
+    const realDates = t.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970);
+    return realDates.some(d => new Date(d.consultation_date) >= monthStart && new Date(d.consultation_date) <= monthEnd);
+  }).map(t => ({
+    ...t,
+    consultations: t.consultations
+      .filter(d => d && new Date(d.consultation_date).getFullYear() > 1970) // ← quita null/1970
+      .filter(d => new Date(d.consultation_date) >= monthStart && new Date(d.consultation_date) <= monthEnd)
+  }));
+}, [transfers, filterMonth]);
 
   /* ------- render ------- */
   return (
@@ -165,45 +109,52 @@ filterMonth === "Todos"
                   </div>
                 </div>
 
-                {p.amount / 50 > p.consultations.length && (
+                {p.amount / 50 > p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length && (
                   <div class="w-full text-yellow-300 text-lg mt-8">
-                    {p.amount / 50 - p.consultations.length === 1
+                    {p.amount / 50 - p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length === 1
                       ? "Falta 1 consulta para cubrir la transferencia!"
-                      : `Faltan ${p.amount / 50 - p.consultations.length} consultas para cubrir la transferencia!`}
+                      : `Faltan ${p.amount / 50 - p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length} consultas para cubrir la transferencia!`}
                   </div>
                 )}
-                {p.amount / 50 > p.consultations.length && (
-                <div class="w-[70%]">
-                  {(
-                    <button
-                      type="button"
-                      onClick={() => {
-                        location.href = `consultations?transferId=${p!.id}&transferDate=${p!.transfer_date}&amount=${p!.amount}&patientId=${p!.patient_id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
-                      }}
-                      class="w-full cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-4 mx-0 mt-5 rounded"
-                    >
-                      Vincular Consulta{p!.amount === 50 ? "" : "s"}
-                    </button>
-                  )}
-                </div>
+                {p.amount / 50 > p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length && (
+                  <div class="w-[70%]">
+                    {(
+                      <button
+                        type="button"
+                        onClick={() => {
+                          location.href = `consultations?transferId=${p!.id}&transferDate=${p!.transfer_date}&amount=${p!.amount}&patientId=${p!.patient_id}&name=${p!.name}&firstSurname=${p!.first_surname}&secondSurname=${p!.second_surname}`;
+                        }}
+                        class="w-full cursor-pointer bg-yellow-700 hover:bg-yellow-800 dark:bg-yellow-800 dark:hover:bg-yellow-900 text-white font-bold py-2 px-4 mx-0 mt-5 rounded"
+                      >
+                        Vincular Consulta{p!.amount === 50 ? "" : "s"}
+                      </button>
+                    )}
+                  </div>
                 )}
 
               </div>
               <div class="w-[56%]">
-                <div class="w-full text-gray-400 text-xl mb-2">
-                  {(p.consultations.length === 1) ? "1 Consulta vinculada:" : "Consultas vinculadas:"}
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                  {p.consultations.map((c, idx) => (
-                    <div
-                      key={idx}
-                      class="py-2 px-1 bg-gray-100 dark:bg-gray-400 rounded-lg text-center"
-                    >
-                      {formatDateES(c.consultation_date)}
-                    </div>
-                  ))}
-                </div>
+                {p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length === 0 ? (
+                  <p class="text-gray-500 text-xl">No existe todavía ninguna consulta vinculada</p>
+                ) : (
+                    <>
+                      <div class="w-full text-gray-400 text-xl mb-2">
+                        {p.consultations.filter(d => d && new Date(d.consultation_date).getFullYear() > 1970).length === 1
+                          ? "1 Consulta vinculada:"
+                          : "Consultas vinculadas:"}
+                      </div>
+                      <div class="grid grid-cols-2 gap-4">
+                        {p.consultations.map((c, idx) => (
+                          <div
+                            key={idx}
+                            class="py-2 px-1 bg-gray-100 dark:bg-gray-400 rounded-lg text-center"
+                          >
+                            {formatDateES(c.consultation_date)}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
               </div>
             </li>
           ))}
