@@ -35,15 +35,23 @@ export default function FrequencyForm(
       "focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors";
 
   /* ----- carga de datos en edición ----- */
+
+  const [original, setOriginal] = useState({ start_date: "", frequency: "" });
+
   useEffect(() => {
     if (frequencyToEdit) {
       // setStart_date(frequencyToEdit.start_date);
       setStart_date(frequencyToEdit.start_date.split('T')[0]);
       setFrequency(frequencyToEdit.frequency);
+      setOriginal({                                   // ← guarda originales
+        start_date: frequencyToEdit.start_date.split('T')[0],
+        frequency: frequencyToEdit.frequency
+      });
     } else {
       setStart_date(today);
       // setFrequency(activeFrequency === "Semanal" ? "Quincenal" : "Semanal");
       setFrequency("");
+      setOriginal({ start_date: today, frequency: "" });
     }
   }, [frequencyToEdit]);
 
@@ -86,6 +94,10 @@ export default function FrequencyForm(
     }
   };
 
+  const hasChanged =
+    start_date !== original.start_date ||
+      frequency !== original.frequency;
+
   /* ----- render ----- */
   return (
     <div>
@@ -112,7 +124,7 @@ export default function FrequencyForm(
           {/* frequency */ }
           <div>
             <label class="block text-gray-700 dark:text-gray-300 font-bold mb-2">
-          {frequencyToEdit ? "Editar Frecuencia *" : " Nueva Frecuencia *"}
+              {frequencyToEdit ? "Editar Frecuencia *" : " Nueva Frecuencia *"}
             </label>
             <select value={frequency} onChange={(e) => setFrequency(e.currentTarget.value)} class={inputCls}>
               <option value="">-- seleccione --</option>
@@ -163,7 +175,11 @@ export default function FrequencyForm(
         <div class="flex flex-wrap gap-2 mt-6">
           <button
             type="submit"
-            class="cursor-pointer bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+            disabled={!hasChanged}
+            class={`font-bold py-2 px-4 rounded transition-colors ${ !hasChanged
+            ? "bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed"
+            : "cursor-pointer bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white"
+            }`}
           >
             {frequencyToEdit ? "Editar" : "Crear"}
           </button>

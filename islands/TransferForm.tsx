@@ -32,13 +32,21 @@ export default function TransferForm(
       "focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors";
 
   /* ----- carga de datos en edición ----- */
+  const [original, setOriginal] = useState({ transfer_date: "", amount: 0 });
+
   useEffect(() => {
     if (transferToEdit) {
       setTransfer_date(transferToEdit.transfer_date.split('T')[0]);
       setAmount(transferToEdit.amount);
+      setOriginal({                                   // ← guarda originales
+        transfer_date: transferToEdit.transfer_date.split('T')[0],
+        amount: transferToEdit.amount
+      });
+
     } else {
       setTransfer_date(today);
       setAmount(0);
+      setOriginal({ transfer_date: today, amount: 0 });
     }
   }, [transferToEdit]);
 
@@ -78,6 +86,10 @@ export default function TransferForm(
       return;
     }
   };
+
+  const hasChanged =
+    transfer_date !== original.transfer_date ||
+      amount !== original.amount;
 
   /* ----- render ----- */
   return (
@@ -122,7 +134,11 @@ export default function TransferForm(
         <div class="flex flex-wrap gap-2 mt-6">
           <button
             type="submit"
-            class="cursor-pointer bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+            disabled={!hasChanged}
+            class={`font-bold py-2 px-4 rounded transition-colors ${ !hasChanged
+            ? "bg-gray-400 text-gray-600 opacity-50 cursor-not-allowed"
+            : "cursor-pointer bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white"
+            }`}
           >
             {transferToEdit ? "Editar" : "Crear"}
           </button>
