@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Pacientes Eguzkilore
+Comment=Iniciar servidor y abrir navegador
+Exec=/srv/http/formation/2025_deno_flex_mariadb/pacientes-eguzkilore/iniciar-proyecto.sh
+Icon=/usr/share/icons/hicolor/48x48/apps/brave-desktop.png
+Terminal=false
+Type=Application
+Categories=Development;
