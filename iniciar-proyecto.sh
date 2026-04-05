@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Ruta completa a deno (AJUSTA según el resultado de 'which deno')
-DENO_PATH="/home/mikel/.deno/bin/deno"
+# Cargar variables desde .env (si existe)
+if [ -f "$(dirname "$0")/.env" ]; then
+    set -a # Exportar automáticamente todas las variables
+    source "$(dirname "$0")/.env"
+    set +a
+fi
 
-# Cambiar al directorio del proyecto (ajusta la ruta según corresponda)
-cd .
+DENO_PATH="${DENO_PATH}"
+PROJECT_DIR="${PROJECT_DIR:-$(dirname "$0")}"
 
-# Iniciar el servidor de Deno en una terminal visible
+cd "$PROJECT_DIR" || exit 1
 xfce4-terminal -e "bash -c '$DENO_PATH task dev'" &
-# xfce4-terminal -e "bash -c '$DENO_PATH task dev; echo \"Presiona Enter para cerrar...\"; read'" &
+sleep 2
 
-# Esperar un momento para que el navegador se abra primero
-sleep 5
-
-# Abrir el navegador Brave en la URL del proyecto
 brave --new-window http://localhost:5173/patients &
